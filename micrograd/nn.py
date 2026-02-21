@@ -1,4 +1,4 @@
-from engine import Value
+from micrograd.engine import Value
 import random
 
 
@@ -11,7 +11,7 @@ class Module:
         return []
 
 
-class Neuron:
+class Neuron(Module):
     def __init__(self, nin, nonlin=True):
         self.w = [Value(random.uniform(-1, 1)) for _ in range(nin)]
         self.b = Value(0)
@@ -28,7 +28,7 @@ class Neuron:
         return f"{'ReLU' if self.nonlin else 'Linear'} Neuron({len(self.w)})"
 
 
-class Layer:
+class Layer(Module):
     def __init__(self, nin, nout, **kwargs):
         self.neurons = [Neuron(nin, **kwargs) for _ in range(nout)]
 
@@ -43,7 +43,7 @@ class Layer:
         return f"Layer of [{', '.join(str(n) for n in self.neurons)}]"
 
 
-class MLP:
+class MLP(Module):
     def __init__(self, nin, nouts):
         sz = [nin] + nouts
         self.layers = [
@@ -54,7 +54,7 @@ class MLP:
     def __call__(self, x):
         for layer in self.layers:
             x = layer(x)
-            return x
+        return x
 
     def parameters(self):
         return [param for layer in self.layers for param in layer.parameters()]
